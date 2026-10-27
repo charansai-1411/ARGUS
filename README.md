@@ -61,6 +61,29 @@ python scripts/run_baselines.py                  # full HI-Small
 
 Results go to `outputs/baselines_HI-Small.json`.
 
+## Phase 2 — heterogeneous GNN
+
+Graph (`src/argus/graph/build.py`): **account**, **entity** (owner, from `HI-Small_accounts.csv`)
+and **bank** nodes; transfers as feature-rich edges in both directions, plus owns / held-at links.
+Task: classify each transfer. Model (`src/argus/graph/model.py`): HeteroConv with GINE / GATv2 /
+SAGE on transfers, SAGE on ownership and bank links, scoring `[h_src, h_dst, edge_features]`.
+
+No future leakage: the model trains on the train-period graph, is selected on the train+val graph
+and is tested on the full graph.
+
+Train on a GPU with [`notebooks/train_gnn_kaggle.ipynb`](notebooks/train_gnn_kaggle.ipynb)
+(Kaggle or Colab). Local quick check (CPU, needs `requirements-gnn.txt` + `pyg_lib`):
+
+```powershell
+python scripts/train_gnn.py --limit 300000 --epochs 1
+```
+
+| Model (HI-Small test) | PR-AUC | F1 | Precision | Recall |
+|---|---|---|---|---|
+| Rules | 0.002 | 0.006 | 0.003 | 0.038 |
+| LightGBM | 0.296 | 0.367 | 0.505 | 0.289 |
+| GNN (GINE) | _run on GPU_ | | | |
+
 ## Evaluation rules
 
 - **Chronological split only** (60/20/20 by time) — random splits leak future hops of a ring.

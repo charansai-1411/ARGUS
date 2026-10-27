@@ -64,6 +64,22 @@ def load_transactions(raw_dir: str | Path, variant: str = "HI-Small",
     return df
 
 
+def load_accounts(raw_dir: str | Path, variant: str = "HI-Small") -> pd.DataFrame:
+    """Load <variant>_accounts.csv: one row per account with its owning entity.
+
+    Returns columns: acct (same id as tx src/dst), bank, entity_id, entity_type, bank_name.
+    """
+    a = pd.read_csv(Path(raw_dir) / f"{variant}_accounts.csv", dtype=str)
+    out = pd.DataFrame({
+        "bank": a["Bank ID"].str.lstrip("0").replace("", "0"),
+        "entity_id": a["Entity ID"],
+        "entity_type": a["Entity Name"].str.split(" #").str[0],
+        "bank_name": a["Bank Name"],
+    })
+    out.insert(0, "acct", out["bank"] + "_" + a["Account Number"])
+    return out
+
+
 _BEGIN = re.compile(r"BEGIN LAUNDERING ATTEMPT - ([A-Z\-]+)")
 
 

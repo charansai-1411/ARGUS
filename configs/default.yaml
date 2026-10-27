@@ -26,6 +26,30 @@ lightgbm:
   early_stopping_rounds: 100
   seed: 42
 
+gnn:
+  conv: gine                   # gine | gat | sage
+  hidden: 64
+  layers: 2
+  dropout: 0.1
+  # Neighbours sampled per hop (one entry per layer). For relation (src, rel, dst) the
+  # number is how many src nodes each dst node pulls in.
+  num_neighbors:
+    transfers: [20, 10]        # senders into an account
+    rev_transfers: [20, 10]    # receivers out of an account
+    owns: [1, 1]               # entity -> account: each account's single owner
+    owned_by: [10, 5]          # account -> entity: sibling accounts of the same owner
+    hosts: [1, 1]              # bank -> account: each account's bank
+    held_at: [5, 5]            # account -> bank: a sample of the bank's accounts (banks are hubs)
+  batch_size: 4096
+  eval_batch_size: 16384
+  epochs: 10
+  lr: 0.001
+  weight_decay: 0.00001
+  pos_weight: 5.0              # BCE weight on the laundering class (tuned lightly; see results)
+  patience: 3                  # early stop on val PR-AUC
+  num_workers: 0
+  seed: 42
+
 eval:
   ring_recall_thresholds: [1.0, 0.5]   # a ring counts as recovered when >= this share of its transfers is flagged
 
