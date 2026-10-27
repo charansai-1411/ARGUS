@@ -46,7 +46,7 @@ GNN training (Phase 2) needs `requirements-gnn.txt`; run it on Kaggle/Colab GPU.
 
 ## Data
 
-Download from Kaggle: <https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-aml>
+Download from Kaggle: <https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-anti-money-laundering-aml>
 and put these in `data/raw/`:
 
 - `HI-Small_Trans.csv` — transactions (~5M rows)

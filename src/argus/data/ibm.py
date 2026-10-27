@@ -1,7 +1,7 @@
 """Loaders for the IBM AML synthetic dataset (Altman et al., "Realistic Synthetic
 Financial Transactions for Anti-Money Laundering Models", NeurIPS 2023 D&B).
 
-Kaggle: https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-aml
+Kaggle: https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-anti-money-laundering-aml
 Expected files in data/raw/: <variant>_Trans.csv and <variant>_Patterns.txt
 """
 
