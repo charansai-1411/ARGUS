@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.cache/
+*.egg-info/
+.pytest_cache/
+
+# Data and outputs (large / regenerable)
+data/raw/*
+data/processed/*
+outputs/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!outputs/.gitkeep
+*.pt
+*.ckpt
+*.parquet
+
+# Secrets
+.env
+kaggle.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

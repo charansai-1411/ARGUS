@@ -1,0 +1,29 @@
+# ARGUS default experiment config
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  variant: HI-Small            # IBM AML file prefix: HI-Small, LI-Small, HI-Medium, ...
+  split: [0.6, 0.2, 0.2]       # chronological train / val / test fractions
+
+features:
+  velocity_window_hours: 24
+
+rules:
+  amount_quantile: 0.99        # flag transfers above this train-set amount quantile
+  velocity_quantile: 0.99      # flag senders/receivers above this train-set 24h-count quantile
+
+lightgbm:
+  n_estimators: 2000
+  learning_rate: 0.05
+  num_leaves: 63
+  min_child_samples: 50
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.8
+  early_stopping_rounds: 100
+  seed: 42
+
+eval:
+  ring_recall_thresholds: [1.0, 0.5]   # a ring counts as recovered when >= this share of its transfers is flagged
+
+output_dir: outputs

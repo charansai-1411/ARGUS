@@ -1,0 +1,5 @@
+# Phase 2+ — GNN training. Install on Kaggle/Colab GPU, or locally after
+# picking the right torch build from https://pytorch.org/get-started/locally/
+-r requirements.txt
+torch>=2.3
+torch_geometric>=2.5
