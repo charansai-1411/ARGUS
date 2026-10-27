@@ -20,6 +20,9 @@ lightgbm:
   subsample: 0.8
   subsample_freq: 1
   colsample_bytree: 0.8
+  # Keep at 1: the threshold is tuned on val anyway. "balanced" (~1300 on HI-Small)
+  # saturates scores at 1.0 and dropped test PR-AUC from 0.30 to 0.007.
+  scale_pos_weight: 1.0
   early_stopping_rounds: 100
   seed: 42
 

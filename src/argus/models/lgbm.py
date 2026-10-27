@@ -9,11 +9,14 @@ def train_lgbm(X_tr: pd.DataFrame, y_tr, X_va: pd.DataFrame, y_va, cfg: dict) ->
     cfg = dict(cfg)
     early = cfg.pop("early_stopping_rounds", 100)
     seed = cfg.pop("seed", 42)
-    pos = max(int(np.sum(y_tr)), 1)
+    spw = cfg.pop("scale_pos_weight", 1.0)
+    if spw == "balanced":
+        pos = max(int(np.sum(y_tr)), 1)
+        spw = (len(y_tr) - pos) / pos
     model = lgb.LGBMClassifier(
         objective="binary",
         metric="average_precision",                 # early-stop on PR-AUC, not log-loss
-        scale_pos_weight=(len(y_tr) - pos) / pos,   # counter the ~0.1% positive rate
+        scale_pos_weight=spw,
         random_state=seed,
         verbose=-1,
         **cfg,
