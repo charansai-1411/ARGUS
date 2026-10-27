@@ -1,0 +1,1168 @@
+{
+ "meta": {
+  "detector": "gnn",
+  "attack": "camouflage",
+  "ring_id": 123,
+  "typology": "cycle",
+  "threshold_naive": 0.738,
+  "threshold_hardened": 0.8169,
+  "banks": [
+   "70",
+   "10",
+   "12",
+   "1",
+   "15",
+   "220",
+   "3",
+   "20"
+  ],
+  "built_at": "2026-10-27 18:36"
+ },
+ "alert": {
+  "tx_id": 97164,
+  "from": "3_80B129B30",
+  "to": "15_803A7B2A0",
+  "time": "2022-09-09 20:32:00",
+  "amount": 4317.45,
+  "currency": "US Dollar",
+  "format": "ACH",
+  "score": 0.9756
+ },
+ "clean": {
+  "nodes": [
+   {
+    "id": "10_81284A170",
+    "bank": "10",
+    "role": "mule",
+    "score_naive": 0.9988
+   },
+   {
+    "id": "15_803A7B2A0",
+    "bank": "15",
+    "role": "mule",
+    "score_naive": 0.9991
+   },
+   {
+    "id": "20_XC0000551",
+    "bank": "20",
+    "role": "exit",
+    "score_naive": 0.9991
+   },
+   {
+    "id": "3_804FAA470",
+    "bank": "3",
+    "role": "mule",
+    "score_naive": 0.999
+   },
+   {
+    "id": "3_80B129B30",
+    "bank": "3",
+    "role": "entry",
+    "score_naive": 0.9756
+   }
+  ],
+  "edges": [
+   {
+    "id": "t97164",
+    "source": "3_80B129B30",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-09 20:32:00",
+    "minute": 0,
+    "amount": 4317.45,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.9756
+   },
+   {
+    "id": "t97331",
+    "source": "15_803A7B2A0",
+    "target": "3_804FAA470",
+    "time": "2022-09-09 20:53:00",
+    "minute": 21,
+    "amount": 4232.87,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.999
+   },
+   {
+    "id": "t97461",
+    "source": "3_804FAA470",
+    "target": "10_81284A170",
+    "time": "2022-09-09 21:12:00",
+    "minute": 40,
+    "amount": 4112.22,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.9988
+   },
+   {
+    "id": "t97547",
+    "source": "10_81284A170",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-09 21:22:00",
+    "minute": 50,
+    "amount": 4019.07,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.9977
+   },
+   {
+    "id": "t97669",
+    "source": "15_803A7B2A0",
+    "target": "20_XC0000551",
+    "time": "2022-09-09 21:37:00",
+    "minute": 65,
+    "amount": 3922.94,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.9991
+   }
+  ]
+ },
+ "case": {
+  "case_id": "ARGUS-DEMO-123",
+  "created_at": "2026-10-27T13:05:59+00:00",
+  "seed_transfer": 97164,
+  "status": "pending_review",
+  "entry_accounts": [
+   "3_80B129B30"
+  ],
+  "exit_accounts": [
+   "20_XC0000551"
+  ],
+  "money_trail": [
+   "3_80B129B30",
+   "15_803A7B2A0",
+   "3_804FAA470",
+   "10_81284A170"
+  ],
+  "indicators": {
+   "accounts": 5,
+   "banks": 4,
+   "transfers": 5,
+   "cross_bank_share": 1.0,
+   "amount_entered": 4317.45,
+   "amount_to_exits": 3922.94,
+   "duration_minutes": 65,
+   "median_pass_through_minutes": 19.0,
+   "dormant_accounts": 4,
+   "shared_owner_groups": {},
+   "max_fan_out": 2,
+   "max_fan_in": 2,
+   "has_cycle": true,
+   "payment_formats": {
+    "ACH": 5
+   }
+  },
+  "accounts": [
+   {
+    "account": "3_80B129B30",
+    "bank": "3",
+    "owner_entity": "8009969E0",
+    "owner_type": "Sole Proprietorship",
+    "other_accounts_of_owner": [],
+    "transfers_before_ring": 2,
+    "first_seen": "2022-09-01 00:04:00",
+    "dormant_before_ring": true,
+    "received_in_ring": 0.0,
+    "sent_in_ring": 4317.45,
+    "max_suspicion_score": 0.976,
+    "role": "entry"
+   },
+   {
+    "account": "10_81284A170",
+    "bank": "10",
+    "owner_entity": "800EABC40",
+    "owner_type": "Sole Proprietorship",
+    "other_accounts_of_owner": [],
+    "transfers_before_ring": 1,
+    "first_seen": "2022-09-05 00:12:00",
+    "dormant_before_ring": true,
+    "received_in_ring": 4112.22,
+    "sent_in_ring": 4019.07,
+    "max_suspicion_score": 0.999,
+    "role": "mule"
+   },
+   {
+    "account": "15_803A7B2A0",
+    "bank": "15",
+    "owner_entity": "800AA6C40",
+    "owner_type": "Partnership",
+    "other_accounts_of_owner": [
+     "15_802F93B80",
+     "15_803697550",
+     "15_803697610",
+     "15_803834540",
+     "15_80383D730",
+     "15_80383DEF0",
+     "15_803843200",
+     "15_803846F60",
+     "15_80384A5D0",
+     "15_80384DCB0"
+    ],
+    "transfers_before_ring": 1,
+    "first_seen": "2022-09-01 00:24:00",
+    "dormant_before_ring": true,
+    "received_in_ring": 8336.52,
+    "sent_in_ring": 8155.81,
+    "max_suspicion_score": 0.999,
+    "role": "mule"
+   },
+   {
+    "account": "20_XC0000551",
+    "bank": "20",
+    "owner_entity": "CASHOUT_123_550",
+    "owner_type": "Individual",
+    "other_accounts_of_owner": [],
+    "transfers_before_ring": 0,
+    "first_seen": "2022-09-09 21:37:00",
+    "dormant_before_ring": true,
+    "received_in_ring": 3922.94,
+    "sent_in_ring": 0.0,
+    "max_suspicion_score": 0.999,
+    "role": "exit"
+   },
+   {
+    "account": "3_804FAA470",
+    "bank": "3",
+    "owner_entity": "800ACCD10",
+    "owner_type": "Corporation",
+    "other_accounts_of_owner": [],
+    "transfers_before_ring": 1,
+    "first_seen": "2022-09-01 15:44:00",
+    "dormant_before_ring": true,
+    "received_in_ring": 4232.87,
+    "sent_in_ring": 4112.22,
+    "max_suspicion_score": 0.999,
+    "role": "mule"
+   }
+  ],
+  "timeline": [
+   {
+    "time": "2022-09-09 20:32:00",
+    "minute": 0,
+    "from": "3_80B129B30",
+    "to": "15_803A7B2A0",
+    "from_bank": "3",
+    "to_bank": "15",
+    "amount": 4317.45,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "score": 0.976
+   },
+   {
+    "time": "2022-09-09 20:53:00",
+    "minute": 21,
+    "from": "15_803A7B2A0",
+    "to": "3_804FAA470",
+    "from_bank": "15",
+    "to_bank": "3",
+    "amount": 4232.87,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "score": 0.999
+   },
+   {
+    "time": "2022-09-09 21:12:00",
+    "minute": 40,
+    "from": "3_804FAA470",
+    "to": "10_81284A170",
+    "from_bank": "3",
+    "to_bank": "10",
+    "amount": 4112.22,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "score": 0.999
+   },
+   {
+    "time": "2022-09-09 21:22:00",
+    "minute": 50,
+    "from": "10_81284A170",
+    "to": "15_803A7B2A0",
+    "from_bank": "10",
+    "to_bank": "15",
+    "amount": 4019.07,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "score": 0.998
+   },
+   {
+    "time": "2022-09-09 21:37:00",
+    "minute": 65,
+    "from": "15_803A7B2A0",
+    "to": "20_XC0000551",
+    "from_bank": "15",
+    "to_bank": "20",
+    "amount": 3922.94,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "score": 0.999
+   }
+  ],
+  "freeze_recommendation": [
+   {
+    "account": "10_81284A170",
+    "bank": "10",
+    "role": "mule",
+    "score": 0.999,
+    "reason": "mule in ring; moved 4,019.07; dormant before ring"
+   },
+   {
+    "account": "15_803A7B2A0",
+    "bank": "15",
+    "role": "mule",
+    "score": 0.999,
+    "reason": "mule in ring; moved 8,155.81; dormant before ring"
+   },
+   {
+    "account": "20_XC0000551",
+    "bank": "20",
+    "role": "exit",
+    "score": 0.999,
+    "reason": "exit in ring; moved 3,922.94; dormant before ring"
+   },
+   {
+    "account": "3_804FAA470",
+    "bank": "3",
+    "role": "mule",
+    "score": 0.999,
+    "reason": "mule in ring; moved 4,112.22; dormant before ring"
+   }
+  ],
+  "review": null,
+  "narrative": "On 2022-09-09 a deposit of 4,317.45 USD entered the ring at account 3_80B129B30 and was transferred via ACH to account 15_803A7B2A0, then to account 3_804FAA470, to account 10_81284A170, back to account 15_803A7B2A0, and finally exited at account 20_XC0000551 as a payment of 3,922.94 USD. The five transfers involved four banks (3, 15, 10, 20), representing 100% cross\u2011bank activity, with a median pass\u2011through time of 19.0 minutes and a total duration of 65 minutes. All transfers received high risk scores above 0.97, the ring comprises five accounts of which four are dormant, and the pattern forms a complete cycle. Rapid multi\u2011bank movement, use of dormant accounts, and the unexplained reduction from entry to exit amount constitute the primary red flags.",
+  "narrative_meta": {
+   "narrative": "On 2022-09-09 a deposit of 4,317.45 USD entered the ring at account 3_80B129B30 and was transferred via ACH to account 15_803A7B2A0, then to account 3_804FAA470, to account 10_81284A170, back to account 15_803A7B2A0, and finally exited at account 20_XC0000551 as a payment of 3,922.94 USD. The five transfers involved four banks (3, 15, 10, 20), representing 100% cross\u2011bank activity, with a median pass\u2011through time of 19.0 minutes and a total duration of 65 minutes. All transfers received high risk scores above 0.97, the ring comprises five accounts of which four are dormant, and the pattern forms a complete cycle. Rapid multi\u2011bank movement, use of dormant accounts, and the unexplained reduction from entry to exit amount constitute the primary red flags.",
+   "grounded": true,
+   "unsupported_numbers": [],
+   "tool_calls": [
+    "get_case_overview",
+    "get_case_overview",
+    "get_timeline"
+   ],
+   "repaired": true,
+   "model": "openai/gpt-oss-120b"
+  }
+ },
+ "red_flags": [
+  "Funds crossed 4 banks (100% of transfers cross-bank).",
+  "Rapid pass-through: mules forwarded funds after a median of 19.0 minutes.",
+  "Entire movement completed within 65 minutes.",
+  "4 account(s) were dormant before the ring activated.",
+  "Circular flow: funds returned to an account already in the chain."
+ ],
+ "str_markdown": "# Suspicious Transaction Report \u2014 ARGUS-DEMO-123\n\n> DRAFT \u2014 generated by ARGUS for review by an authorised officer. Freeze actions are recommendations only and require officer approval.\n\n**Status:** pending_review  \n**Created:** 2026-10-27T13:05:59+00:00  \n**Triggered by transfer:** #97164\n\n## 1. Summary\n\nOn 2022-09-09 a deposit of 4,317.45 USD entered the ring at account 3_80B129B30 and was transferred via ACH to account 15_803A7B2A0, then to account 3_804FAA470, to account 10_81284A170, back to account 15_803A7B2A0, and finally exited at account 20_XC0000551 as a payment of 3,922.94 USD. The five transfers involved four banks (3, 15, 10, 20), representing 100% cross\u2011bank activity, with a median pass\u2011through time of 19.0 minutes and a total duration of 65 minutes. All transfers received high risk scores above 0.97, the ring comprises five accounts of which four are dormant, and the pattern forms a complete cycle. Rapid multi\u2011bank movement, use of dormant accounts, and the unexplained reduction from entry to exit amount constitute the primary red flags.\n\n## 2. Grounds for suspicion\n\n- Funds crossed 4 banks (100% of transfers cross-bank).\n- Rapid pass-through: mules forwarded funds after a median of 19.0 minutes.\n- Entire movement completed within 65 minutes.\n- 4 account(s) were dormant before the ring activated.\n- Circular flow: funds returned to an account already in the chain.\n\n## 3. Money trail\n\n`3_80B129B30` \u2192 `15_803A7B2A0` \u2192 `3_804FAA470` \u2192 `10_81284A170`\n\n## 4. Subjects\n\n| Account | Bank | Role | Owner | Owner type | Prior transfers | Received | Sent | Score |\n|---|---|---|---|---|---|---|---|---|\n| `3_80B129B30` | 3 | entry | 8009969E0 | Sole Proprietorship | 2 | 0.00 | 4,317.45 | 0.98 |\n| `10_81284A170` | 10 | mule | 800EABC40 | Sole Proprietorship | 1 | 4,112.22 | 4,019.07 | 1.00 |\n| `15_803A7B2A0` | 15 | mule | 800AA6C40 | Partnership | 1 | 8,336.52 | 8,155.81 | 1.00 |\n| `20_XC0000551` | 20 | exit | CASHOUT_123_550 | Individual | 0 | 3,922.94 | 0.00 | 1.00 |\n| `3_804FAA470` | 3 | mule | 800ACCD10 | Corporation | 1 | 4,232.87 | 4,112.22 | 1.00 |\n\n## 5. Timeline\n\n| +min | From | To | Amount | Currency | Format | Score |\n|---|---|---|---|---|---|---|\n| 0 | `3_80B129B30` | `15_803A7B2A0` | 4,317.45 | US Dollar | ACH | 0.98 |\n| 21 | `15_803A7B2A0` | `3_804FAA470` | 4,232.87 | US Dollar | ACH | 1.00 |\n| 40 | `3_804FAA470` | `10_81284A170` | 4,112.22 | US Dollar | ACH | 1.00 |\n| 50 | `10_81284A170` | `15_803A7B2A0` | 4,019.07 | US Dollar | ACH | 1.00 |\n| 65 | `15_803A7B2A0` | `20_XC0000551` | 3,922.94 | US Dollar | ACH | 1.00 |\n\n## 6. Recommended action (requires officer approval)\n\n| Account | Bank | Role | Score | Reason |\n|---|---|---|---|---|\n| `10_81284A170` | 10 | mule | 1.00 | mule in ring; moved 4,019.07; dormant before ring |\n| `15_803A7B2A0` | 15 | mule | 1.00 | mule in ring; moved 8,155.81; dormant before ring |\n| `20_XC0000551` | 20 | exit | 1.00 | exit in ring; moved 3,922.94; dormant before ring |\n| `3_804FAA470` | 3 | mule | 1.00 | mule in ring; moved 4,112.22; dormant before ring |\n",
+ "adapt": {
+  "nodes": [
+   {
+    "id": "10_80005CB50",
+    "bank": "10",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "10_81284A170",
+    "bank": "10",
+    "role": "mule",
+    "score_naive": 0.7176,
+    "score_hardened": 0.9874
+   },
+   {
+    "id": "12_800FED780",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_80126B2F0",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_801E5B110",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_8047C26E0",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_809A1A900",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_810F9BEA0",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "12_81364C000",
+    "bank": "12",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "15_803A7B2A0",
+    "bank": "15",
+    "role": "mule",
+    "score_naive": 0.9947,
+    "score_hardened": 0.9915
+   },
+   {
+    "id": "15_8045390D0",
+    "bank": "15",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "15_80A464E90",
+    "bank": "15",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "15_8136E3BF1",
+    "bank": "15",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "15_XM0001011",
+    "bank": "15",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "1_8012D4A40",
+    "bank": "1",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_80017A100",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_8002838E0",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_80029AB10",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_803055D00",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_8030AA430",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_80B480ED0",
+    "bank": "20",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "20_XC0000551",
+    "bank": "20",
+    "role": "exit",
+    "score_naive": 0.9947,
+    "score_hardened": 0.9915
+   },
+   {
+    "id": "220_802191810",
+    "bank": "220",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "220_80275DB90",
+    "bank": "220",
+    "role": "legit",
+    "score_naive": 0.0,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "3_804FAA470",
+    "bank": "3",
+    "role": "mule",
+    "score_naive": 0.7176,
+    "score_hardened": 0.989
+   },
+   {
+    "id": "3_80B129B30",
+    "bank": "3",
+    "role": "entry",
+    "score_naive": 0.0347,
+    "score_hardened": 0.303
+   }
+  ],
+  "edges": [
+   {
+    "id": "t82196",
+    "source": "10_80005CB50",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-08 08:21:00",
+    "minute": -2171,
+    "amount": 5.37,
+    "currency": "Yen",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0007,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t82197",
+    "source": "220_802191810",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-08 08:21:00",
+    "minute": -2171,
+    "amount": 245.16,
+    "currency": "Yuan",
+    "format": "Bitcoin",
+    "kind": "camouflage",
+    "score_naive": 0.0089,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t82332",
+    "source": "15_XM0001011",
+    "target": "3_804FAA470",
+    "time": "2022-09-08 08:21:00",
+    "minute": -2171,
+    "amount": 14.4,
+    "currency": "Ruble",
+    "format": "Bitcoin",
+    "kind": "camouflage",
+    "score_naive": 0.4228,
+    "score_hardened": 0.0004
+   },
+   {
+    "id": "t83342",
+    "source": "10_81284A170",
+    "target": "12_801E5B110",
+    "time": "2022-09-08 09:49:00",
+    "minute": -2083,
+    "amount": 0.0,
+    "currency": "US Dollar",
+    "format": "Credit Card",
+    "kind": "camouflage",
+    "score_naive": 0.0005,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t85850",
+    "source": "3_804FAA470",
+    "target": "20_8030AA430",
+    "time": "2022-09-08 16:05:00",
+    "minute": -1707,
+    "amount": 11897745.92,
+    "currency": "Yuan",
+    "format": "Reinvestment",
+    "kind": "camouflage",
+    "score_naive": 0.0018,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t87766",
+    "source": "20_803055D00",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-08 20:27:00",
+    "minute": -1445,
+    "amount": 8852.15,
+    "currency": "Yen",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0007,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t88834",
+    "source": "12_80126B2F0",
+    "target": "10_81284A170",
+    "time": "2022-09-08 22:57:00",
+    "minute": -1295,
+    "amount": 151.22,
+    "currency": "Yuan",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0067,
+    "score_hardened": 0.0002
+   },
+   {
+    "id": "t90568",
+    "source": "12_810F9BEA0",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-09 02:30:00",
+    "minute": -1082,
+    "amount": 196.98,
+    "currency": "US Dollar",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.1359,
+    "score_hardened": 0.0012
+   },
+   {
+    "id": "t91756",
+    "source": "12_8047C26E0",
+    "target": "20_XC0000551",
+    "time": "2022-09-09 05:02:00",
+    "minute": -930,
+    "amount": 312.57,
+    "currency": "US Dollar",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.9553,
+    "score_hardened": 0.0328
+   },
+   {
+    "id": "t92320",
+    "source": "3_804FAA470",
+    "target": "220_80275DB90",
+    "time": "2022-09-09 06:11:00",
+    "minute": -861,
+    "amount": 93.81,
+    "currency": "US Dollar",
+    "format": "Reinvestment",
+    "kind": "camouflage",
+    "score_naive": 0.2174,
+    "score_hardened": 0.0321
+   },
+   {
+    "id": "t95958",
+    "source": "15_803A7B2A0",
+    "target": "20_80B480ED0",
+    "time": "2022-09-09 13:11:00",
+    "minute": -441,
+    "amount": 0.11,
+    "currency": "Ruble",
+    "format": "Reinvestment",
+    "kind": "camouflage",
+    "score_naive": 0.0017,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t95997",
+    "source": "15_803A7B2A0",
+    "target": "15_8045390D0",
+    "time": "2022-09-09 13:15:00",
+    "minute": -437,
+    "amount": 2556.77,
+    "currency": "Mexican Peso",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0002,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t97743",
+    "source": "3_804FAA470",
+    "target": "15_80A464E90",
+    "time": "2022-09-09 16:52:00",
+    "minute": -220,
+    "amount": 752492.28,
+    "currency": "US Dollar",
+    "format": "Credit Card",
+    "kind": "camouflage",
+    "score_naive": 0.238,
+    "score_hardened": 0.0074
+   },
+   {
+    "id": "t99529",
+    "source": "3_80B129B30",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-09 20:32:00",
+    "minute": 0,
+    "amount": 4317.45,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.0347,
+    "score_hardened": 0.303
+   },
+   {
+    "id": "t99620",
+    "source": "3_804FAA470",
+    "target": "12_81364C000",
+    "time": "2022-09-09 20:43:00",
+    "minute": 11,
+    "amount": 996.4,
+    "currency": "Rupee",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0003,
+    "score_hardened": 0.0
+   },
+   {
+    "id": "t99708",
+    "source": "15_803A7B2A0",
+    "target": "3_804FAA470",
+    "time": "2022-09-09 20:53:00",
+    "minute": 21,
+    "amount": 4232.87,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.2881,
+    "score_hardened": 0.989
+   },
+   {
+    "id": "t99854",
+    "source": "3_804FAA470",
+    "target": "10_81284A170",
+    "time": "2022-09-09 21:12:00",
+    "minute": 40,
+    "amount": 4112.22,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.7176,
+    "score_hardened": 0.9874
+   },
+   {
+    "id": "t99949",
+    "source": "10_81284A170",
+    "target": "15_803A7B2A0",
+    "time": "2022-09-09 21:22:00",
+    "minute": 50,
+    "amount": 4019.07,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.1728,
+    "score_hardened": 0.9871
+   },
+   {
+    "id": "t99965",
+    "source": "10_81284A170",
+    "target": "12_809A1A900",
+    "time": "2022-09-09 21:24:00",
+    "minute": 52,
+    "amount": 1802.65,
+    "currency": "Bitcoin",
+    "format": "Reinvestment",
+    "kind": "camouflage",
+    "score_naive": 0.0008,
+    "score_hardened": 0.0032
+   },
+   {
+    "id": "t100082",
+    "source": "15_803A7B2A0",
+    "target": "20_XC0000551",
+    "time": "2022-09-09 21:37:00",
+    "minute": 65,
+    "amount": 3922.94,
+    "currency": "US Dollar",
+    "format": "ACH",
+    "kind": "ring",
+    "score_naive": 0.9947,
+    "score_hardened": 0.9915
+   },
+   {
+    "id": "t100948",
+    "source": "10_81284A170",
+    "target": "20_80017A100",
+    "time": "2022-09-09 23:16:00",
+    "minute": 164,
+    "amount": 0.12,
+    "currency": "Yuan",
+    "format": "Credit Card",
+    "kind": "camouflage",
+    "score_naive": 0.0005,
+    "score_hardened": 0.0003
+   },
+   {
+    "id": "t104956",
+    "source": "20_XC0000551",
+    "target": "1_8012D4A40",
+    "time": "2022-09-10 17:30:00",
+    "minute": 1258,
+    "amount": 160410.17,
+    "currency": "Yuan",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.9083,
+    "score_hardened": 0.0036
+   },
+   {
+    "id": "t105131",
+    "source": "12_800FED780",
+    "target": "10_81284A170",
+    "time": "2022-09-10 18:28:00",
+    "minute": 1316,
+    "amount": 303.59,
+    "currency": "US Dollar",
+    "format": "Bitcoin",
+    "kind": "camouflage",
+    "score_naive": 0.0034,
+    "score_hardened": 0.061
+   },
+   {
+    "id": "t105850",
+    "source": "20_XC0000551",
+    "target": "20_80029AB10",
+    "time": "2022-09-10 22:26:00",
+    "minute": 1554,
+    "amount": 27252.74,
+    "currency": "Yuan",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.6257,
+    "score_hardened": 0.0005
+   },
+   {
+    "id": "t106293",
+    "source": "20_XC0000551",
+    "target": "20_8002838E0",
+    "time": "2022-09-10 23:59:00",
+    "minute": 1647,
+    "amount": 0.11,
+    "currency": "Rupee",
+    "format": "Cash",
+    "kind": "camouflage",
+    "score_naive": 0.0628,
+    "score_hardened": 0.0001
+   },
+   {
+    "id": "t106294",
+    "source": "3_804FAA470",
+    "target": "15_8136E3BF1",
+    "time": "2022-09-10 23:59:00",
+    "minute": 1647,
+    "amount": 254.91,
+    "currency": "US Dollar",
+    "format": "Cheque",
+    "kind": "camouflage",
+    "score_naive": 0.0002,
+    "score_hardened": 0.0008
+   }
+  ],
+  "naive": {
+   "flagged": 1,
+   "transfers": 5,
+   "ring_recall": 0.2
+  },
+  "hardened": {
+   "flagged": 4,
+   "transfers": 5,
+   "ring_recall": 0.8
+  },
+  "clean_naive": {
+   "flagged": 5,
+   "transfers": 5,
+   "ring_recall": 1.0
+  }
+ },
+ "results": {
+  "hi_small": [
+   {
+    "model": "Rules",
+    "pr_auc": 0.0020810665554448853,
+    "f1": 0.005505627074730791,
+    "precision": 0.002968913726859937,
+    "recall": 0.03781979977753059
+   },
+   {
+    "model": "LightGBM",
+    "pr_auc": 0.29626917568772204,
+    "f1": 0.3673036093418259,
+    "precision": 0.504863813229572,
+    "recall": 0.2886540600667408
+   },
+   {
+    "model": "GNN (GINE)",
+    "pr_auc": 0.7258,
+    "f1": 0.7291,
+    "precision": 0.8607,
+    "recall": 0.6324
+   }
+  ],
+  "robustness": {
+   "lightgbm": {
+    "clean_f1": 0.9742,
+    "single": {
+     "separate_owners": {
+      "D": 0.0,
+      "R": 0.0,
+      "attack_f1": 0.9742,
+      "retrained_f1": 0.9742
+     },
+     "add_hops": {
+      "D": -0.0051,
+      "R": 0.0187,
+      "attack_f1": 0.9793,
+      "retrained_f1": 0.998
+     },
+     "split": {
+      "D": 0.4391,
+      "R": 0.4408,
+      "attack_f1": 0.5351,
+      "retrained_f1": 0.9759
+     },
+     "delay": {
+      "D": 0.0111,
+      "R": 0.0019,
+      "attack_f1": 0.9631,
+      "retrained_f1": 0.9651
+     },
+     "mimic": {
+      "D": 0.3075,
+      "R": 0.2938,
+      "attack_f1": 0.6667,
+      "retrained_f1": 0.9605
+     },
+     "camouflage": {
+      "D": 0.4812,
+      "R": 0.33,
+      "attack_f1": 0.493,
+      "retrained_f1": 0.823
+     }
+    },
+    "adaptive": [
+     {
+      "round": 1,
+      "added": "split",
+      "before": 0.9742,
+      "attack": 0.5351,
+      "retrained": 0.9759
+     },
+     {
+      "round": 2,
+      "added": "mimic",
+      "before": 0.9759,
+      "attack": 0.5321,
+      "retrained": 0.9643
+     },
+     {
+      "round": 3,
+      "added": "delay",
+      "before": 0.9643,
+      "attack": 0.8909,
+      "retrained": 0.9369
+     },
+     {
+      "round": 4,
+      "added": "camouflage",
+      "before": 0.9369,
+      "attack": 0.5859,
+      "retrained": 0.8343
+     }
+    ]
+   },
+   "gnn": {
+    "clean_f1": 0.971,
+    "single": {
+     "separate_owners": {
+      "D": 0.0,
+      "R": -0.0021,
+      "attack_f1": 0.971,
+      "retrained_f1": 0.9689
+     },
+     "add_hops": {
+      "D": -0.0187,
+      "R": 0.0103,
+      "attack_f1": 0.9897,
+      "retrained_f1": 1.0
+     },
+     "split": {
+      "D": 0.0378,
+      "R": 0.0528,
+      "attack_f1": 0.9333,
+      "retrained_f1": 0.986
+     },
+     "delay": {
+      "D": 0.0,
+      "R": -0.0043,
+      "attack_f1": 0.971,
+      "retrained_f1": 0.9667
+     },
+     "mimic": {
+      "D": 0.1021,
+      "R": 0.096,
+      "attack_f1": 0.8689,
+      "retrained_f1": 0.9649
+     },
+     "camouflage": {
+      "D": 0.4361,
+      "R": 0.3134,
+      "attack_f1": 0.5349,
+      "retrained_f1": 0.8483
+     }
+    },
+    "adaptive": [
+     {
+      "round": 1,
+      "added": "mimic",
+      "before": 0.971,
+      "attack": 0.8689,
+      "retrained": 0.9649
+     },
+     {
+      "round": 2,
+      "added": "split",
+      "before": 0.9649,
+      "attack": 0.8835,
+      "retrained": 0.9798
+     },
+     {
+      "round": 3,
+      "added": "camouflage",
+      "before": 0.9798,
+      "attack": 0.6342,
+      "retrained": 0.8967
+     },
+     {
+      "round": 4,
+      "added": "delay",
+      "before": 0.8967,
+      "attack": 0.8577,
+      "retrained": 0.8776
+     }
+    ]
+   }
+  },
+  "agent": {
+   "clean": {
+    "detector": "lightgbm",
+    "attack": null,
+    "test_rings": 103,
+    "rings_detected": 103,
+    "mean_precision": 0.908,
+    "mean_recall": 0.989,
+    "mean_jaccard": 0.899,
+    "entry_identified": 0.951,
+    "by_typology": {
+     "chain": {
+      "precision": 0.896,
+      "recall": 1.0,
+      "jaccard": 0.896
+     },
+     "cycle": {
+      "precision": 0.929,
+      "recall": 0.992,
+      "jaccard": 0.92
+     },
+     "fan_out": {
+      "precision": 0.924,
+      "recall": 0.971,
+      "jaccard": 0.903
+     },
+     "scatter_gather": {
+      "precision": 0.884,
+      "recall": 0.996,
+      "jaccard": 0.88
+     }
+    }
+   },
+   "split": {
+    "detector": "lightgbm",
+    "attack": "split",
+    "test_rings": 103,
+    "rings_detected": 103,
+    "mean_precision": 0.891,
+    "mean_recall": 0.992,
+    "mean_jaccard": 0.885,
+    "entry_identified": 0.961,
+    "by_typology": {
+     "chain": {
+      "precision": 0.892,
+      "recall": 1.0,
+      "jaccard": 0.892
+     },
+     "cycle": {
+      "precision": 0.929,
+      "recall": 1.0,
+      "jaccard": 0.929
+     },
+     "fan_out": {
+      "precision": 0.913,
+      "recall": 0.969,
+      "jaccard": 0.89
+     },
+     "scatter_gather": {
+      "precision": 0.837,
+      "recall": 1.0,
+      "jaccard": 0.837
+     }
+    }
+   },
+   "camouflage": {
+    "detector": "lightgbm",
+    "attack": "camouflage",
+    "test_rings": 103,
+    "rings_detected": 103,
+    "mean_precision": 0.743,
+    "mean_recall": 0.894,
+    "mean_jaccard": 0.678,
+    "entry_identified": 0.728,
+    "by_typology": {
+     "chain": {
+      "precision": 0.803,
+      "recall": 0.809,
+      "jaccard": 0.675
+     },
+     "cycle": {
+      "precision": 0.789,
+      "recall": 0.951,
+      "jaccard": 0.74
+     },
+     "fan_out": {
+      "precision": 0.672,
+      "recall": 0.841,
+      "jaccard": 0.601
+     },
+     "scatter_gather": {
+      "precision": 0.728,
+      "recall": 0.961,
+      "jaccard": 0.702
+     }
+    }
+   }
+  }
+ }
+}

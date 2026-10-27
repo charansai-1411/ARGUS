@@ -196,6 +196,28 @@ python scripts/investigate.py review outputs/cases/<id>.json --officer "Name" --
 Camouflage again is the hard case: cover transactions pull legitimate accounts into the
 reconstructed ring (precision drops), which is why freeze lists stay recommendations for an officer.
 
+## Phase 5 — live demo
+
+FastAPI backend (`api/main.py`) + React / Vite / Cytoscape frontend (`frontend/`). The story is
+precomputed (`scripts/build_demo.py` → `api/demo_data.json`, committed) so the demo also runs
+offline:
+
+1. **The alert fires** — a victim's ordinary-looking transfer, scored by the detector.
+2. **The network reveals** — the ring appears hop by hop across bank boxes.
+3. **The agent investigates** — trail, red flags and the STR draft appear; an officer approves,
+   escalates or rejects (Reset re-runs the demo).
+4. **The criminal adapts** — the same ring re-run with camouflage: the *naive* detector (trained
+   on clean data) misses it, the *hardened* one (retrained on the attacker's playbook) catches it.
+5. **Results** — rules vs LightGBM vs GNN on HI-Small, attack degradation D per model, agent accuracy.
+
+```powershell
+pip install -r requirements-demo.txt
+cd frontend; npm install; npm run build; cd ..
+python -m uvicorn api.main:app --port 8000      # open http://localhost:8000, use ← → to step
+# frontend dev mode with hot reload: (backend running) cd frontend; npm run dev  -> :5173
+python scripts/build_demo.py                     # rebuild the story (GNN, ~10 min CPU)
+```
+
 ## Evaluation rules
 
 - **Chronological split only** (60/20/20 by time) — random splits leak future hops of a ring.
