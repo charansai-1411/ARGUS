@@ -18,13 +18,13 @@ from pathlib import Path
 import numpy as np
 import torch
 from sklearn.metrics import average_precision_score
-from torch_geometric.loader import LinkNeighborLoader
 
 from argus.config import load_config, resolve
 from argus.data.ibm import attach_rings, load_accounts, load_patterns, load_transactions
 from argus.eval.metrics import best_f1_threshold, evaluate
 from argus.graph.build import SPLITS, TRANSFER, build_hetero_graph, phase_graph
 from argus.graph.model import EdgeGNN
+from argus.graph.sampling import make_loader
 
 
 def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False):
@@ -32,7 +32,10 @@ def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False
     tag = f"{dc['variant']}" + (f"_limit{limit}" if limit else "")
     cache = processed_dir / f"{tag}_graph.pt"
     if cache.exists() and not rebuild:
-        return torch.load(cache, weights_only=False)
+        data = torch.load(cache, weights_only=False)
+        if "time" in data[TRANSFER]:
+            return data
+        print("cached graph has no edge timestamps; rebuilding")
     tx = load_transactions(raw_dir, dc["variant"], cache_dir=processed_dir)
     if limit:
         tx = tx.iloc[:limit].copy()
@@ -43,19 +46,6 @@ def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False
     processed_dir.mkdir(parents=True, exist_ok=True)
     torch.save(data, cache)
     return data
-
-
-def make_loader(graph, edge_ids, gc, shuffle, batch_size):
-    nn_cfg = {et: gc["num_neighbors"][et[1]] for et in graph.edge_types}
-    return LinkNeighborLoader(
-        graph,
-        num_neighbors=nn_cfg,
-        edge_label_index=(TRANSFER, graph[TRANSFER].edge_index[:, edge_ids]),
-        edge_label=edge_ids,            # carry global edge ids through the sampler
-        batch_size=batch_size,
-        shuffle=shuffle,
-        num_workers=gc["num_workers"],
-    )
 
 
 def step_inputs(batch, data, device):

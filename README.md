@@ -78,11 +78,18 @@ Train on a GPU with [`notebooks/train_gnn_kaggle.ipynb`](notebooks/train_gnn_kag
 python scripts/train_gnn.py --limit 300000 --epochs 1
 ```
 
-| Model (HI-Small test) | PR-AUC | F1 | Precision | Recall |
-|---|---|---|---|---|
-| Rules | 0.002 | 0.006 | 0.003 | 0.038 |
-| LightGBM | 0.296 | 0.367 | 0.505 | 0.289 |
-| GNN (GINE) | _run on GPU_ | | | |
+| Model (HI-Small test) | PR-AUC | F1 | Precision | Recall | Ring recall @1 | Ring recall @0.5 |
+|---|---|---|---|---|---|---|
+| Rules | 0.002 | 0.006 | 0.003 | 0.038 | 0.005 | — |
+| LightGBM | 0.296 | 0.367 | 0.505 | 0.289 | 0.042 | 0.370 |
+| GNN (GINE), with look-ahead ⚠️ | 0.734 | 0.730 | 0.826 | 0.654 | 0.651 | 0.906 |
+| **GNN (GINE), time-respecting** | _re-run pending_ | | | | | |
+
+The first GINE run (Kaggle T4, early-stopped at epoch 8, ~58 min) let a scored transfer's
+neighbourhood include *later* transfers — no labels leak, but it is look-ahead a bank would
+not have. Sampling is now time-respecting (`gnn.temporal: true`): each transfer only sees
+transfers at or before its own timestamp, enforced by `tests/test_graph.py`. Only the
+time-respecting numbers should be reported.
 
 ## Evaluation rules
 

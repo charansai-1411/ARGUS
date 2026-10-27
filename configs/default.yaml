@@ -40,8 +40,10 @@ gnn:
     owned_by: [10, 5]          # account -> entity: sibling accounts of the same owner
     hosts: [1, 1]              # bank -> account: each account's bank
     held_at: [5, 5]            # account -> bank: a sample of the bank's accounts (banks are hubs)
+  temporal: true               # scored transfers only see earlier-or-same-time transfers
+  temporal_strategy: last      # sample the most recent neighbours (or: uniform)
   batch_size: 4096
-  eval_batch_size: 16384
+  eval_batch_size: 8192        # temporal (disjoint) subgraphs: ~85 nodes / ~250 edges per transfer
   epochs: 10
   lr: 0.001
   weight_decay: 0.00001

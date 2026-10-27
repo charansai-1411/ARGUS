@@ -35,6 +35,27 @@ def test_phase_graph_hides_future(graph):
     assert graph[TRANSFER].num_edges == 404  # original untouched
 
 
+@pytest.mark.parametrize("temporal", [True, False])
+def test_temporal_sampling_has_no_lookahead(graph, temporal):
+    from argus.graph.sampling import make_loader
+    gc = {"num_neighbors": {et[1]: [20, 20] for et in graph.edge_types}, "temporal": temporal}
+    ids = torch.arange(graph[TRANSFER].num_edges)
+    later = 0
+    for b in make_loader(graph, ids, gc, False, 64):
+        seed_t = graph[TRANSFER].time[b[TRANSFER].edge_label]
+        for et in (TRANSFER, REV_TRANSFER):
+            dst = b[et].edge_index[1]
+            seed = b["account"].batch[dst] if temporal else None
+            if temporal:
+                later += int((b[et].time > seed_t[seed]).sum())
+            else:
+                later += int((b[et].time > seed_t.min()).sum())
+    if temporal:
+        assert later == 0
+    else:
+        assert later > 0  # sanity: without temporal sampling the future is visible
+
+
 @pytest.mark.parametrize("conv", CONVS)
 def test_model_forward_backward(graph, conv):
     model = EdgeGNN(graph.metadata(), {nt: graph[nt].x.size(1) for nt in graph.node_types},

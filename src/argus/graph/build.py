@@ -95,6 +95,16 @@ def build_hetero_graph(tx: pd.DataFrame, accounts: pd.DataFrame, split_fractions
     data["bank", "hosts", "account"].edge_index = torch.stack([bank, acc_ids])
     data["account", "held_at", "bank"].edge_index = torch.stack([acc_ids, bank])
 
+    # Edge timestamps (seconds since the first transfer) for time-respecting sampling:
+    # a scored transfer may only see transfers at or before its own time. Ownership and
+    # bank links are static, so they get time 0 (always visible).
+    t = torch.tensor(((tx["ts"] - tx["ts"].min()).dt.total_seconds()).to_numpy(), dtype=torch.long)
+    data[TRANSFER].time = t
+    data[REV_TRANSFER].time = t
+    for et in data.edge_types:
+        if et not in (TRANSFER, REV_TRANSFER):
+            data[et].time = torch.zeros(data[et].num_edges, dtype=torch.long)
+
     data.edge_feature_names = feature_names
     data.entity_types = types
     return data
@@ -109,7 +119,7 @@ def phase_graph(data: HeteroData, phase: str) -> HeteroData:
     n = int((data[TRANSFER].split <= SPLITS[phase]).sum())
     g = copy.copy(data)  # shallow: tensors are shared, slices below are views (no 5M-edge copies)
     for et in (TRANSFER, REV_TRANSFER):
-        for key in ("edge_index", "edge_attr", "y", "split", "ring_id"):
+        for key in ("edge_index", "edge_attr", "y", "split", "ring_id", "time"):
             if key in g[et]:
                 t = g[et][key]
                 g[et][key] = t[:, :n] if key == "edge_index" else t[:n]
