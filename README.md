@@ -160,6 +160,42 @@ exposes, and the motivation for camouflage-aware aggregation (CARE-GNN-style nei
 as the next defence. (3) Under a 4-round adaptive attacker the GNN keeps a 4.4-point F1 lead.
 Single seed so far — repeat with several seeds before quoting error bars.
 
+## Phase 4 — investigation agent and STR drafting
+
+`src/argus/agent/`: from one flagged transfer, the investigator rebuilds the ring (accounts linked
+by suspicious transfers in a ±48 h window), finds the entry (victim) and exits (cash-out), traces the
+money trail, profiles every account (owner, sibling accounts, dormancy, amounts) and computes red
+flags (cross-bank hops, pass-through time, fan-in/out, cycles, shared owners). **All facts are
+computed deterministically**; the STR is rendered from them (`report.py`).
+
+The optional LLM agent (`llm.py`) runs on **Groq** (free tier, `openai/gpt-oss-120b` by
+default). It writes only the summary paragraph, by calling the case tools in a function-calling
+loop. Every number it writes must match a case fact (`grounding_check`); it gets one repair
+attempt, then the draft is rejected and the template summary is used.
+
+Setup: `pip install -r requirements-agent.txt`, get a free key at <https://console.groq.com/keys>,
+then either set `GROQ_API_KEY` or create `D:\ARGUS\.env` (gitignored) containing
+`GROQ_API_KEY=gsk_...`. Never commit the key. ARGUS never freezes accounts: each case starts `pending_review` and an officer records
+approve / reject / escalate (`review.py`).
+
+```powershell
+python scripts/investigate.py cases                     # case files + STRs in outputs/cases/
+python scripts/investigate.py cases --llm               # Groq LLM summary
+python scripts/investigate.py cases --attack camouflage # agent under attack
+python scripts/investigate.py review outputs/cases/<id>.json --officer "Name" --decision approve
+```
+
+**Ring reconstruction vs twin ground truth** (103 test rings, LightGBM scores):
+
+| Twin | Rings detected | Account precision | Account recall | Jaccard | Victim found |
+|---|---|---|---|---|---|
+| clean | 103/103 | 0.908 | 0.989 | 0.899 | 95.1% |
+| split attack | 103/103 | 0.891 | 0.992 | 0.885 | 96.1% |
+| camouflage attack | 103/103 | 0.743 | 0.894 | **0.678** | 72.8% |
+
+Camouflage again is the hard case: cover transactions pull legitimate accounts into the
+reconstructed ring (precision drops), which is why freeze lists stay recommendations for an officer.
+
 ## Evaluation rules
 
 - **Chronological split only** (60/20/20 by time) — random splits leak future hops of a ring.
@@ -175,6 +211,6 @@ Single seed so far — repeat with several seeds before quoting error bars.
 | 1 Data + baselines | 2–3 | Rules + LightGBM numbers on HI-Small |
 | 2 GNN detector | 4–6 | GCN / SAGE / GAT (+temporal), hybrid with LightGBM, ring-level output |
 | 3 Digital twin + attacks | 7–9 | Ring injector, mutations, multi-round D/R curves |
-| 4 Agent + STR | 10–11 | Gemini function-calling agent, STR draft, approve step |
+| 4 Agent + STR | 10–11 | Groq function-calling agent, grounded STR draft, approve step |
 | 5 Demo | 12–13 | FastAPI + React/Cytoscape, 4-beat demo |
 | 6 Write-up | 14–16 | Gap matrix, results, report, viva |

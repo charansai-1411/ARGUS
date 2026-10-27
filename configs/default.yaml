@@ -66,6 +66,11 @@ twin:
     delay_factor: [20, 80]     # stretch ring timelines 20-80x (minutes -> hours)
     camouflage_per_mule: [3, 8]
 
+agent:
+  window_hours: 48             # time window around the flagged transfer for ring reconstruction
+  max_accounts: 80             # stop expanding a ring beyond this many accounts
+  model: openai/gpt-oss-120b   # Groq model with tool use (GROQ_API_KEY); template STR without a key
+
 eval:
   ring_recall_thresholds: [1.0, 0.5]   # a ring counts as recovered when >= this share of its transfers is flagged
 

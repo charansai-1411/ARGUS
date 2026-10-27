@@ -134,5 +134,10 @@ def mutate(world, ring_tx, accounts, ops, seed: int, cfg: dict | None = None, ta
 
     `tag` keeps account ids minted by different calls (e.g. per period) from colliding.
     """
+    if isinstance(ops, str):  # a bare string would silently become a set of letters
+        raise TypeError("ops must be a list of operator names, not a string")
+    unknown = set(ops) - set(OPERATORS)
+    if unknown:
+        raise ValueError(f"unknown attack operators: {sorted(unknown)}")
     key = zlib.crc32((tag + "|" + ",".join(sorted(ops))).encode())
     return Attacker(world, np.random.default_rng([seed, key]), cfg, tag).apply(ring_tx, accounts, set(ops))
