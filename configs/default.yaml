@@ -52,6 +52,20 @@ gnn:
   num_workers: 0
   seed: 42
 
+twin:
+  n_banks: 8                   # busiest IBM banks forming the multi-bank world
+  end: "2022-09-11"            # HI-Small activity is Sep 1-10; later days are a sparse tail
+  n_rings: 400                 # injected rings, spread over train / val / test periods
+  seed: 7
+  rounds: 4                    # adaptive attacker rounds
+  rings:
+    p_recruit: 0.5             # share of mules recruited from dormant real accounts
+    p_shared_owner: 0.6        # share of rings whose fresh mules share one owner (herder)
+    hop_gap_min: 15            # mean minutes between hops
+  attacks:
+    delay_factor: [20, 80]     # stretch ring timelines 20-80x (minutes -> hours)
+    camouflage_per_mule: [3, 8]
+
 eval:
   ring_recall_thresholds: [1.0, 0.5]   # a ring counts as recovered when >= this share of its transfers is flagged
 

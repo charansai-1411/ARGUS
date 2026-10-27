@@ -22,6 +22,13 @@ RENAME = {
     "Amount Paid": "amount_paid", "Payment Currency": "pay_currency",
     "Payment Format": "payment_format", "Is Laundering": "is_laundering",
 }
+# Fixed category lists (from the IBM AML generator) so features keep the same columns
+# when the digital twin injects or mutates transactions.
+PAYMENT_FORMATS = ["ACH", "Bitcoin", "Cash", "Cheque", "Credit Card", "Reinvestment", "Wire"]
+CURRENCIES = ["Australian Dollar", "Bitcoin", "Brazil Real", "Canadian Dollar", "Euro", "Mexican Peso",
+              "Ruble", "Rupee", "Saudi Riyal", "Shekel", "Swiss Franc", "UK Pound", "US Dollar", "Yen", "Yuan"]
+ENTITY_TYPES = ["Corporation", "Country", "Direct", "Individual", "Partnership", "Sole Proprietorship", "Unknown"]
+
 # Columns that identify one transfer, used to match pattern rows back to transactions.
 KEY = ["ts", "src", "dst", "amount_paid", "pay_currency"]
 

@@ -18,15 +18,18 @@ import pandas as pd
 import torch
 from torch_geometric.data import HeteroData
 
+from argus.data.ibm import ENTITY_TYPES
 from argus.data.split import chronological_split
 from argus.features.tabular import CATEGORICAL, build_features
 
 TRANSFER = ("account", "transfers", "account")
 REV_TRANSFER = ("account", "rev_transfers", "account")
 SPLITS = {"train": 0, "val": 1, "test": 2}
+GRAPH_VERSION = 2  # bump when node/edge features change, so cached graphs are rebuilt
 # Heavy-tailed counts / durations / ratios: compress with sign(x)*log1p(|x|) before scaling.
 _SLOG = ["amount_ratio", "src_out_win", "src_in_win", "dst_in_win", "dst_out_win",
          "src_out_prior", "dst_in_prior", "src_secs_since_prev_out", "src_amount_vs_mean"]
+_MAYBE_MISSING = ["amount_ratio", "src_secs_since_prev_out", "src_amount_vs_mean"]
 
 
 def _edge_features(tx: pd.DataFrame, train_mask: np.ndarray, window_hours: float):
@@ -34,20 +37,25 @@ def _edge_features(tx: pd.DataFrame, train_mask: np.ndarray, window_hours: float
     num = f.drop(columns=CATEGORICAL).astype("float64")
     num[_SLOG] = np.sign(num[_SLOG]) * np.log1p(num[_SLOG].abs())
     num = num.replace([np.inf, -np.inf], np.nan)
-    missing = num.isna().any().loc[lambda s: s].index
-    for c in missing:                                   # keep "no history yet" as its own signal
+    for c in _MAYBE_MISSING:                            # keep "no history yet" as its own signal
         num[f"{c}_missing"] = num[c].isna().astype("float64")
     mean, std = num[train_mask].mean(), num[train_mask].std().replace(0, 1)
     num = ((num - mean) / std).fillna(0.0)
-    onehot = pd.get_dummies(f[CATEGORICAL].astype(str), dtype="float64")
+    onehot = pd.get_dummies(f[CATEGORICAL], dtype="float64")  # fixed categories -> fixed columns
     feats = pd.concat([num, onehot], axis=1)
     return torch.tensor(feats.to_numpy(), dtype=torch.float32), list(feats.columns)
 
 
 def build_hetero_graph(tx: pd.DataFrame, accounts: pd.DataFrame, split_fractions=(0.6, 0.2, 0.2),
-                       window_hours: float = 24) -> HeteroData:
-    """tx must be time-sorted (load_transactions does this) and carry ring_id (attach_rings)."""
-    split = np.array([SPLITS[s] for s in chronological_split(tx, split_fractions)], dtype=np.int8)
+                       window_hours: float = 24, split=None) -> HeteroData:
+    """tx must be time-sorted (load_transactions does this) and carry ring_id (attach_rings).
+
+    split: optional per-row 'train' / 'val' / 'test' labels (the digital twin passes its own
+    fixed time cut-offs); otherwise a chronological split by `split_fractions`.
+    """
+    if split is None:
+        split = chronological_split(tx, split_fractions)
+    split = np.array([SPLITS[s] for s in split], dtype=np.int8)
 
     acc = accounts.drop_duplicates("acct").set_index("acct")
     tx_accts = pd.unique(pd.concat([tx["src"], tx["dst"]], ignore_index=True))
@@ -61,7 +69,7 @@ def build_hetero_graph(tx: pd.DataFrame, accounts: pd.DataFrame, split_fractions
     bank_codes, bank_uniques = pd.factorize(acc["bank"])
 
     data = HeteroData()
-    types = sorted(acc["entity_type"].unique())
+    types = ENTITY_TYPES  # fixed list so node features keep the same width across twin versions
     type_onehot = pd.get_dummies(pd.Categorical(acc["entity_type"], categories=types), dtype="float32").to_numpy()
     data["account"].x = torch.tensor(type_onehot)
     data["account"].num_nodes = len(acc)
@@ -106,6 +114,7 @@ def build_hetero_graph(tx: pd.DataFrame, accounts: pd.DataFrame, split_fractions
             data[et].time = torch.zeros(data[et].num_edges, dtype=torch.long)
 
     data.edge_feature_names = feature_names
+    data.graph_version = GRAPH_VERSION
     data.entity_types = types
     return data
 

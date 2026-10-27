@@ -7,6 +7,8 @@ its timestamp), so the same features are valid at train and test time.
 import numpy as np
 import pandas as pd
 
+from argus.data.ibm import CURRENCIES, PAYMENT_FORMATS
+
 FEATURES = [
     "log_amount", "amount_ratio", "currency_mismatch", "cross_bank", "self_loop",
     "hour", "weekday", "payment_format", "pay_currency",
@@ -34,8 +36,8 @@ def build_features(df: pd.DataFrame, window_hours: float = 24) -> pd.DataFrame:
     f["self_loop"] = (df["src"] == df["dst"]).astype("int8")
     f["hour"] = df["ts"].dt.hour.astype("int8")
     f["weekday"] = df["ts"].dt.day_of_week.astype("int8")
-    f["payment_format"] = df["payment_format"].astype("category")
-    f["pay_currency"] = df["pay_currency"].astype("category")
+    f["payment_format"] = pd.Categorical(df["payment_format"].astype(str), categories=PAYMENT_FORMATS)
+    f["pay_currency"] = pd.Categorical(df["pay_currency"].astype(str), categories=CURRENCIES)
 
     # Shared entity codes so an account is the same id whether it sends or receives.
     codes, _ = pd.factorize(pd.concat([df["src"], df["dst"]], ignore_index=True))

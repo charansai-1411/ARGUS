@@ -17,14 +17,12 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from sklearn.metrics import average_precision_score
 
 from argus.config import load_config, resolve
 from argus.data.ibm import attach_rings, load_accounts, load_patterns, load_transactions
 from argus.eval.metrics import best_f1_threshold, evaluate
-from argus.graph.build import SPLITS, TRANSFER, build_hetero_graph, phase_graph
-from argus.graph.model import EdgeGNN
-from argus.graph.sampling import make_loader
+from argus.graph.build import GRAPH_VERSION, TRANSFER, build_hetero_graph
+from argus.graph import trainer
 
 
 def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False):
@@ -33,9 +31,9 @@ def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False
     cache = processed_dir / f"{tag}_graph.pt"
     if cache.exists() and not rebuild:
         data = torch.load(cache, weights_only=False)
-        if "time" in data[TRANSFER]:
+        if getattr(data, "graph_version", 1) == GRAPH_VERSION:
             return data
-        print("cached graph has no edge timestamps; rebuilding")
+        print("cached graph is from an older feature version; rebuilding")
     tx = load_transactions(raw_dir, dc["variant"], cache_dir=processed_dir)
     if limit:
         tx = tx.iloc[:limit].copy()
@@ -46,29 +44,6 @@ def get_graph(cfg, raw_dir: Path, processed_dir: Path, limit=None, rebuild=False
     processed_dir.mkdir(parents=True, exist_ok=True)
     torch.save(data, cache)
     return data
-
-
-def step_inputs(batch, data, device):
-    ids = batch[TRANSFER].edge_label
-    edge_attr = {et: batch[et].edge_attr.to(device) for et in batch.edge_types if "edge_attr" in batch[et]}
-    return (
-        {nt: batch[nt].x.to(device) for nt in batch.node_types},
-        {et: batch[et].edge_index.to(device) for et in batch.edge_types},
-        edge_attr,
-        batch[TRANSFER].edge_label_index.to(device),
-        data[TRANSFER].edge_attr[ids].to(device),
-        ids,
-    )
-
-
-@torch.no_grad()
-def predict(model, loader, data, device, n_edges):
-    model.eval()
-    scores = torch.empty(n_edges)
-    for batch in loader:
-        *inp, ids = step_inputs(batch, data, device)
-        scores[ids] = torch.sigmoid(model(*inp)).cpu()
-    return scores
 
 
 def main():
@@ -95,59 +70,24 @@ def main():
     t0 = time.time()
 
     data = get_graph(cfg, raw_dir, processed_dir, args.limit, args.rebuild)
-    split, y = data[TRANSFER].split, data[TRANSFER].y
-    ids = {s: torch.nonzero(split == v).squeeze(1) for s, v in SPLITS.items()}
+    y = data[TRANSFER].y
+    ids = trainer.split_ids(data)
     print(data, f"\ngraph ready [{time.time() - t0:.0f}s]  device={device}")
     for s in ids:
         print(f"  {s:5s} {len(ids[s]):>10,} transfers  {y[ids[s]].mean():.4%} laundering")
 
-    graphs = {s: phase_graph(data, s) for s in SPLITS}
-    train_loader = make_loader(graphs["train"], ids["train"], gc, True, gc["batch_size"])
-    val_loader = make_loader(graphs["val"], ids["val"], gc, False, gc["eval_batch_size"])
-    test_loader = make_loader(graphs["test"], ids["test"], gc, False, gc["eval_batch_size"])
-
-    model = EdgeGNN(data.metadata(), {nt: data[nt].x.size(1) for nt in data.node_types},
-                    data[TRANSFER].edge_attr.size(1), gc["hidden"], gc["layers"], gc["conv"],
-                    gc["dropout"]).to(device)
-    opt = torch.optim.AdamW(model.parameters(), lr=gc["lr"], weight_decay=gc["weight_decay"])
-    loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(gc["pos_weight"], device=device))
-    n_edges = data[TRANSFER].num_edges
-    ckpt = out_dir / f"gnn_{gc['conv']}.pt"
-    best, bad, history = -1.0, 0, []
-
-    for epoch in range(1, gc["epochs"] + 1):
-        model.train()
-        total, n = 0.0, 0
-        for step, batch in enumerate(train_loader):
-            *inp, b_ids = step_inputs(batch, data, device)
-            loss = loss_fn(model(*inp), y[b_ids].to(device))
-            opt.zero_grad(); loss.backward(); opt.step()
-            total += loss.item() * len(b_ids); n += len(b_ids)
-            if step % 100 == 0:
-                print(f"    epoch {epoch} step {step}/{len(train_loader)} loss {loss.item():.4f}", flush=True)
-        val_scores = predict(model, val_loader, data, device, n_edges)[ids["val"]]
-        val_ap = average_precision_score(y[ids["val"]], val_scores)
-        history.append({"epoch": epoch, "train_loss": total / n, "val_pr_auc": float(val_ap)})
-        print(f"epoch {epoch}: loss {total / n:.4f}  val PR-AUC {val_ap:.4f}  [{time.time() - t0:.0f}s]", flush=True)
-        if val_ap > best:
-            best, bad = val_ap, 0
-            torch.save(model.state_dict(), ckpt)
-        else:
-            bad += 1
-            if bad >= gc["patience"]:
-                print("early stop"); break
-
-    model.load_state_dict(torch.load(ckpt, weights_only=True))
-    all_val = predict(model, val_loader, data, device, n_edges)
-    all_test = predict(model, test_loader, data, device, n_edges)
-    thr = best_f1_threshold(y[ids["val"]].numpy(), all_val[ids["val"]].numpy())
-    result = evaluate(y[ids["test"]].numpy(), all_test[ids["test"]].numpy(), thr,
+    model, best, history = trainer.fit(data, gc, device, log=lambda m: print(m, flush=True))
+    torch.save(model.state_dict(), out_dir / f"gnn_{gc['conv']}.pt")
+    val_scores = trainer.predict(model, data, "val", ids["val"], gc, device)
+    test_scores = trainer.predict(model, data, "test", ids["test"], gc, device)
+    thr = best_f1_threshold(y[ids["val"]].numpy(), val_scores.numpy())
+    result = evaluate(y[ids["test"]].numpy(), test_scores.numpy(), thr,
                       data[TRANSFER].ring_id[ids["test"]].numpy(), cfg["eval"]["ring_recall_thresholds"])
     result.update(conv=gc["conv"], best_val_pr_auc=float(best), history=history, config=gc)
 
     tag = f"{cfg['data']['variant']}_{gc['conv']}" + (f"_limit{args.limit}" if args.limit else "")
     (out_dir / f"gnn_{tag}.json").write_text(json.dumps(result, indent=2, default=float))
-    np.save(out_dir / f"gnn_{tag}_test_scores.npy", all_test[ids["test"]].numpy())
+    np.save(out_dir / f"gnn_{tag}_test_scores.npy", test_scores.numpy())
     print(f"TEST  PR-AUC {result['pr_auc']:.4f}  F1 {result['f1']:.4f}  P {result['precision']:.4f}  "
           f"R {result['recall']:.4f}  ring@1 {result.get('ring_recall@1', float('nan')):.3f}  "
           f"[{time.time() - t0:.0f}s]")

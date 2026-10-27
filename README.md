@@ -93,6 +93,73 @@ The earlier look-ahead run let a transfer's neighbourhood include *later* transf
 leaked). Removing it cost only ~0.01 PR-AUC, so the GNN's gain over LightGBM is not a
 look-ahead artefact.
 
+## Phase 3 — digital twin and adversarial robustness
+
+`src/argus/twin/`: a multi-bank world built from real IBM background traffic (the 8 busiest
+banks, Sep 1–10, IBM's own laundering removed) with **injected mule rings whose every transfer is
+known** — chain, fan-out, scatter-gather and cycle typologies, mules recruited from dormant real
+accounts or freshly opened, often sharing a herder entity.
+
+The attacker's playbook (`attacks.py`):
+
+| Operator | Tactic |
+|---|---|
+| `separate_owners` | fresh mules get distinct owners (hides the shared herder) |
+| `add_hops` | every transfer routed through an extra mule at another bank |
+| `split` | smurfing: transfers split into 2–4 smaller ones |
+| `delay` | ring stretched from minutes to hours (beats velocity windows) |
+| `mimic` | payment formats/currencies copied from normal traffic (feature camouflage) |
+| `camouflage` | mules transact normally with legitimate accounts (relation camouflage) |
+
+Protocol (`protocol.py`): train on the clean twin → attack only the test-period rings →
+**D = F1_before − F1_attack** → retrain on train/val rings mutated the same way →
+**R = F1_retrained − F1_attack**. The adaptive attacker probes the current detector on
+validation rings each round and adds the operator that lowers its recall most.
+
+```powershell
+python scripts/run_twin.py --detector lightgbm        # ~1.5 min on CPU
+python scripts/run_twin.py --detector gnn --epochs 6  # CPU works on the twin; GPU faster
+```
+
+**LightGBM on the twin** (400 rings; clean test F1 0.974):
+
+| Attack alone | F1 attacked | F1 retrained | D | R |
+|---|---|---|---|---|
+| camouflage | 0.493 | 0.823 | **+0.481** | +0.330 |
+| split | 0.535 | 0.976 | +0.439 | +0.441 |
+| mimic | 0.667 | 0.960 | +0.308 | +0.294 |
+| delay | 0.963 | 0.965 | +0.011 | +0.002 |
+| add_hops | 0.979 | 0.998 | −0.005 | +0.019 |
+| separate_owners | 0.974 | 0.974 | 0.000 | 0.000 |
+
+Adaptive attacker, 4 rounds: split → mimic → delay → camouflage. F1 after each retrain:
+0.976 → 0.964 → 0.937 → **0.834** — each round the detector heals less (camouflage is only
+partly recoverable by retraining a tabular model).
+
+**GNN (GINE, time-respecting) vs LightGBM on the same twin** (GNN: 6 epochs per fit, CPU, 34 min):
+
+| Attack alone | LightGBM D | GNN D | LightGBM F1 retrained | GNN F1 retrained |
+|---|---|---|---|---|
+| clean F1 | 0.974 | 0.971 | — | — |
+| camouflage | +0.481 | **+0.436** | 0.823 | **0.848** |
+| split | +0.439 | **+0.038** | 0.976 | 0.986 |
+| mimic | +0.308 | **+0.102** | 0.960 | 0.965 |
+| delay | +0.011 | 0.000 | 0.965 | 0.967 |
+| add_hops | −0.005 | −0.019 | 0.998 | 1.000 |
+| separate_owners | 0.000 | 0.000 | 0.974 | 0.969 |
+
+Adaptive attacker vs GNN, 4 rounds: mimic → split → camouflage → delay. F1 after each retrain:
+0.965 → 0.980 → 0.897 → **0.878** (LightGBM ended at 0.834). Clean ring recall @1: GNN 0.883 vs
+LightGBM 0.825.
+
+**Findings.** (1) The graph view largely neutralises structuring: smurfing costs LightGBM 0.44 F1
+but the GNN only 0.04, and feature mimicry costs a third as much. (2) Relation camouflage — mules
+padding their neighbourhoods with legitimate counterparties — is the attack neither model shrugs
+off (D ≈ 0.44–0.48) and the one retraining only partly repairs; it is the open problem ARGUS
+exposes, and the motivation for camouflage-aware aggregation (CARE-GNN-style neighbour filtering)
+as the next defence. (3) Under a 4-round adaptive attacker the GNN keeps a 4.4-point F1 lead.
+Single seed so far — repeat with several seeds before quoting error bars.
+
 ## Evaluation rules
 
 - **Chronological split only** (60/20/20 by time) — random splits leak future hops of a ring.
