@@ -82,14 +82,16 @@ python scripts/train_gnn.py --limit 300000 --epochs 1
 |---|---|---|---|---|---|---|
 | Rules | 0.002 | 0.006 | 0.003 | 0.038 | 0.005 | — |
 | LightGBM | 0.296 | 0.367 | 0.505 | 0.289 | 0.042 | 0.370 |
-| GNN (GINE), with look-ahead ⚠️ | 0.734 | 0.730 | 0.826 | 0.654 | 0.651 | 0.906 |
-| **GNN (GINE), time-respecting** | _re-run pending_ | | | | | |
+| **GNN (GINE), time-respecting** | **0.726** | **0.729** | **0.861** | **0.632** | **0.604** | **0.901** |
+| GNN (GINE), with look-ahead ⚠️ (superseded) | 0.734 | 0.730 | 0.826 | 0.654 | 0.651 | 0.906 |
 
-The first GINE run (Kaggle T4, early-stopped at epoch 8, ~58 min) let a scored transfer's
-neighbourhood include *later* transfers — no labels leak, but it is look-ahead a bank would
-not have. Sampling is now time-respecting (`gnn.temporal: true`): each transfer only sees
-transfers at or before its own timestamp, enforced by `tests/test_graph.py`. Only the
-time-respecting numbers should be reported.
+**Reported result:** the time-respecting GINE run (Kaggle T4, 10 epochs, best val PR-AUC 0.612
+at epoch 9, ~110 min). Each scored transfer only sees transfers at or before its own
+timestamp (`gnn.temporal: true`, enforced by `tests/test_graph.py`).
+
+The earlier look-ahead run let a transfer's neighbourhood include *later* transfers (no labels
+leaked). Removing it cost only ~0.01 PR-AUC, so the GNN's gain over LightGBM is not a
+look-ahead artefact.
 
 ## Evaluation rules
 
