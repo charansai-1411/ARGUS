@@ -1,0 +1,13 @@
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\chapter*{ABSTRACT}
+
+Money stolen through cyber fraud is laundered within minutes by splitting it across chains of ``mule'' accounts held at several different banks. Each bank observes only its own hop of the chain, so no single institution sees the laundering ring, and rule-based monitoring systems that flag individual transactions by fixed thresholds are easily evaded. This project presents \textbf{ARGUS}, an AI-powered graph-intelligence platform that models the flow of money as a heterogeneous, temporal transaction graph of accounts, owning entities and banks, and detects laundering with an edge-level Graph Neural Network (GNN) whose neighbourhood sampling is time-respecting, so that no transaction is scored with knowledge of later activity.
+
+On the IBM AML HI-Small benchmark (5.08 million transactions, evaluated on the chronologically last 20\%), the GNN reaches a PR-AUC of 0.726 and an F1 score of 0.729 on the laundering class, against 0.296 and 0.367 for a LightGBM model on the same features and 0.002 and 0.006 for a rule-based baseline, and fully recovers 60.4\% of the laundering rings compared with 4.2\% for LightGBM.
+
+Because detection alone is a settled question, the central contribution of ARGUS is an adversarial evaluation. A multi-bank digital twin built from real background traffic injects laundering rings with complete ground truth, and an attacker mutates them with six tactics (owner separation, extra hops, structuring, delays, feature mimicry and relation camouflage). The degradation $D$ caused by each attack and the recovery $R$ obtained by retraining are measured, including against an adaptive attacker who probes the detector every round. The graph model largely neutralises structuring ($D$ = 0.038 versus 0.439 for LightGBM) and mimicry ($D$ = 0.102 versus 0.307), while relation camouflage remains the open problem for both models ($D \approx 0.44$--$0.48$). An investigation agent then reconstructs each detected ring (Jaccard similarity 0.90 with the ground truth) and drafts a Suspicious Transaction Report whose narrative, written by a large language model, is checked number by number against computed facts; every freeze action remains a recommendation for a human officer. A live demonstration presents the alert, the reconstructed network, the investigation and the attack in five steps.
+\\
+
+\noindent\textit{Keywords}: Anti-Money Laundering, Graph Neural Networks, Temporal Graphs, Mule Accounts, Adversarial Robustness, Digital Twin, Suspicious Transaction Report, Human-in-the-Loop

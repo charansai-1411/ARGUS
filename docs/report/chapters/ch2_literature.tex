@@ -1,0 +1,82 @@
+\chapter{LITERATURE SURVEY}
+
+\section{Overview}
+The literature relevant to ARGUS is organised along five dimensions of the problem: how the money is represented (graph structure and time), where labelled training data comes from and how large it is, how robust a detector is when the criminal fights back, how to learn when labels are rare or scarce, and what unit of detection is handed to an investigator. Ten papers were studied; each contributes one building block to ARGUS, and each leaves part of the problem open.
+
+\section{Representation: Graphs and Time}
+Johannessen and Jullum \cite{johannessen2025finding} build a heterogeneous graph of customers, accounts and banks from real bank data and extend message-passing GNNs to aggregate neighbour messages separately for each edge type; it is the first heterogeneous GNN for AML and the base paper of this project. Its data is private and from a single bank, and it has no temporal or adversarial evaluation. Di Gennaro et al. \cite{digennaro2024amatriciana} (Amatriciana) keep the whole transaction graph intact and combine a GraphSAGE encoder with an LSTM over each account's transaction sequence, trained with a class-weighted Matthews-correlation loss; on IBM synthetic AML data they report F1 0.76, AUC 0.82 and 55\% fewer false positives than plain GraphSAGE. Alarab and Prakoonwit \cite{alarab2023graph} reach the same conclusion independently on Bitcoin data: a temporal GCN combined with an LSTM outperforms static models on the Elliptic graph, so time carries signal that static graphs miss.
+
+\textbf{ARGUS adopts} the heterogeneous account--entity--bank schema, temporal transfer edges, and benchmarks GNN variants (GINE, GATv2, GraphSAGE) instead of assuming one backbone.
+
+\section{Data and Scale}
+Labelled laundering data cannot be bought. Granados et al. \cite{granados2024gan} build it with an agent-based model of normal customers, mules and coordinators following behavioural rules (receive, hold, split, forward), wrapped in a GAN for realism; every generated trajectory has a known label. Weber et al. \cite{weber2018scalable} generate a 1-million-node AML graph with the AMLSim simulator and show that plain GCNs hit compute and memory limits that neighbour sampling relieves; their accuracy numbers are preliminary. The IBM AML datasets \cite{altman2023realistic} used in this project are descendants of this line of simulators.
+
+\textbf{ARGUS adopts} injected rings with known ground truth as the basis of its digital twin, and mini-batch neighbour sampling from the start.
+
+\section{Robustness: When the Criminal Fights Back}
+Prasetya et al. \cite{prasetya2025multi} play a multi-round game on promotion fraud: the detector predicts, the attacker regenerates fraud on the evolving graph, and the cycle repeats. Detectors that start near 0.9 F1 fall below 0.56 F1 across rounds; their temporally pre-trained embedder is more robust. Dou et al. \cite{dou2020enhancing} (CARE-GNN) identify \emph{feature camouflage} and \emph{relation camouflage} --- fraudsters surrounding themselves with legitimate neighbours --- as attacks on the aggregation step of GNNs, and counter them with label-aware neighbour filtering trained by reinforcement learning.
+
+\textbf{ARGUS adopts} the multi-round attack-and-retrain protocol as its core experiment, and uses the camouflage taxonomy as its attacker's playbook. Neither paper is about bank AML, and neither measures recovery after retraining.
+
+\section{Learning under Constraints: Rare and Scarce Labels}
+Liu et al. \cite{liu2021pick} (PC-GNN) show that at very low positive rates a model can score high accuracy while catching nobody, and propose label-balanced and neighbourhood sampling. Cardoso et al. \cite{cardoso2022laundrograph} (LaundroGraph) pre-train a GNN self-supervised on a customer--transaction graph, improving AUC by 12 percentage points over the best non-graph baseline while assisting analysts rather than replacing them.
+
+\textbf{ARGUS adopts} PR-AUC and minority-class F1 as the honest metrics (never accuracy), validation-chosen thresholds, and an analyst-assist design in which the system recommends and an officer decides.
+
+\section{Detection Target: What the Investigator Receives}
+Bellei et al. \cite{bellei2024shape} release Elliptic2, with 122{,}000 labelled subgraphs over a 49-million-node Bitcoin graph, and show that laundering is better treated as a subgraph problem than a node problem.
+
+\textbf{ARGUS adopts} ring-level evaluation (ring recall, reconstruction Jaccard) alongside transaction-level metrics, because investigators act on rings, not single accounts.
+
+\section{Summary of Surveyed Papers}
+Table~\ref{tab:survey} summarises the ten papers.
+
+{\small
+\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{|p{0.04\linewidth}|p{0.20\linewidth}|p{0.27\linewidth}|p{0.20\linewidth}|p{0.17\linewidth}|}
+\caption{Summary of the literature survey}\label{tab:survey}\\
+\hline
+\textbf{No.} & \textbf{Paper (venue, year)} & \textbf{Methodology} & \textbf{Limitation} & \textbf{Result} \\ \hline
+\endfirsthead
+\hline
+\textbf{No.} & \textbf{Paper (venue, year)} & \textbf{Methodology} & \textbf{Limitation} & \textbf{Result} \\ \hline
+\endhead
+1 & Johannessen \& Jullum \cite{johannessen2025finding} (J. Finance \& Data Science, 2025) & Heterogeneous GNN over customers, accounts, banks; per-edge-type aggregation & Private, single-bank data; no temporal or adversarial test & First heterogeneous GNN for AML \\ \hline
+2 & Di Gennaro et al. \cite{digennaro2024amatriciana} (IEEE ICDMW, 2024) & GraphSAGE + LSTM on the intact graph; weighted MCC loss & Synthetic data; no adaptive attacker & F1 0.76, AUC 0.82; 55\% fewer false positives \\ \hline
+3 & Granados et al. \cite{granados2024gan} (IEEE ICDMW, 2024) & Agent-based mules + GAN to generate laundering trajectories & GAN realism hard to verify & Controllable scenarios with known labels \\ \hline
+4 & Prasetya et al. \cite{prasetya2025multi} (SNAM, Springer, 2025) & Multi-round attacker vs detector; temporal pre-trained embedder & Promotion fraud, not AML & Baselines fall below 0.56 F1 across rounds \\ \hline
+5 & Liu et al. \cite{liu2021pick} (WWW, 2021) & Pick-and-choose sampling for imbalanced graph learning & Review/financial fraud; static graphs & Beats prior methods on imbalanced fraud graphs \\ \hline
+6 & Dou et al. \cite{dou2020enhancing} (ACM CIKM, 2020) & Camouflage-resistant aggregation (label-aware similarity, RL neighbour selection) & Review fraud; no temporal dimension & Outperforms prior GNN fraud detectors \\ \hline
+7 & Cardoso et al. \cite{cardoso2022laundrograph} (ACM ICAIF, 2022) & Self-supervised link-prediction pre-training for AML & No direct laundering labels & +12 p.p. AUC over non-graph baseline \\ \hline
+8 & Alarab \& Prakoonwit \cite{alarab2023graph} (Neural Proc. Letters, 2023) & Temporal GCN + LSTM on Bitcoin transactions & Bitcoin, not bank accounts & Outperforms static models on Elliptic \\ \hline
+9 & Bellei et al. \cite{bellei2024shape} (KDD MLF Workshop, 2024) & Subgraph-level learning; Elliptic2 benchmark & Bitcoin address clusters & Subgraph beats node level \\ \hline
+10 & Weber et al. \cite{weber2018scalable} (NeurIPS AI-in-Finance Workshop, 2018) & AMLSim synthetic graph; scalable GCN with sampling & Preliminary; synthetic & GNN AML feasible at 1M nodes / 9M edges \\ \hline
+\end{longtable}
+}
+
+\section{Research Gap}
+Each result above was established once, in isolation and often on different data (Bitcoin, promotion fraud, review fraud) with no shared ground truth. Table~\ref{tab:gap} marks which properties each paper covers. No surveyed work combines a heterogeneous, temporal, imbalance-aware AML detector, evaluated at transaction and ring level inside a multi-bank testbed with complete ground truth, and measures how much an adaptive, camouflaged attacker removes ($D$) and how much retraining wins back ($R$). ARGUS is designed to fill exactly this cluster.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
+{\footnotesize
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Paper} & \rotatebox{90}{\textbf{Bank AML}} & \rotatebox{90}{\textbf{Temporal}} & \rotatebox{90}{\textbf{Heterogeneous}} & \rotatebox{90}{\textbf{Multi-bank}} & \rotatebox{90}{\textbf{Known ground truth}} & \rotatebox{90}{\textbf{Adaptive attacker}} & \rotatebox{90}{\textbf{Camouflage}} & \rotatebox{90}{\textbf{Ring-level}} & \rotatebox{90}{\textbf{Multi-round}} & \rotatebox{90}{\textbf{$D$ / $R$ measured}} \\ \hline
+\cite{johannessen2025finding} Johannessen & $\checkmark$ & -- & $\checkmark$ & -- & -- & -- & -- & -- & -- & -- \\ \hline
+\cite{digennaro2024amatriciana} Di Gennaro & $\checkmark$ & $\checkmark$ & -- & $\sim$ & $\checkmark$ & -- & -- & -- & -- & -- \\ \hline
+\cite{granados2024gan} Granados & $\sim$ & $\sim$ & -- & -- & $\checkmark$ & -- & -- & $\sim$ & -- & -- \\ \hline
+\cite{prasetya2025multi} Prasetya & -- & $\checkmark$ & -- & -- & $\sim$ & $\checkmark$ & -- & -- & $\checkmark$ & $\sim$ \\ \hline
+\cite{liu2021pick} Liu (PC-GNN) & -- & -- & $\checkmark$ & -- & -- & -- & -- & -- & -- & -- \\ \hline
+\cite{dou2020enhancing} Dou (CARE-GNN) & -- & -- & $\checkmark$ & -- & -- & -- & $\checkmark$ & -- & -- & -- \\ \hline
+\cite{cardoso2022laundrograph} Cardoso & $\checkmark$ & -- & $\sim$ & -- & -- & -- & -- & -- & -- & -- \\ \hline
+\cite{alarab2023graph} Alarab & -- & $\checkmark$ & -- & -- & -- & -- & -- & -- & -- & -- \\ \hline
+\cite{bellei2024shape} Bellei & -- & -- & -- & -- & -- & -- & -- & $\checkmark$ & -- & -- \\ \hline
+\cite{weber2018scalable} Weber & $\checkmark$ & -- & -- & $\sim$ & $\checkmark$ & -- & -- & -- & -- & -- \\ \hline
+\textbf{ARGUS (this work)} & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\ \hline
+\end{tabular}}
+\caption{Literature gap matrix ($\checkmark$ = addressed, $\sim$ = partially, -- = not addressed)}
+\label{tab:gap}
+\end{table}

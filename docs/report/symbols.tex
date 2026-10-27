@@ -1,0 +1,22 @@
+\chapter*{SYMBOLS}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|p{0.22\linewidth}|p{0.68\linewidth}|}
+\hline
+\textbf{Symbol} & \textbf{Meaning} \\ \hline
+$G=(V,E)$ & Heterogeneous transaction graph with node set $V$ and edge set $E$ \\ \hline
+$V_{acc}, V_{ent}, V_{bank}$ & Account, owning-entity and bank node sets \\ \hline
+$e=(u,v,t,\mathbf{x}_e)$ & Transfer from account $u$ to account $v$ at time $t$ with edge features $\mathbf{x}_e$ \\ \hline
+$\mathbf{h}_v^{(l)}$ & Hidden representation of node $v$ after layer $l$ \\ \hline
+$\mathcal{N}_{\le t}(v)$ & Neighbours of $v$ reachable through transfers at or before time $t$ \\ \hline
+$\hat{y}_e$ & Laundering score of transfer $e$ (sigmoid output) \\ \hline
+$\tau$ & Decision threshold, chosen on the validation period to maximise F1 \\ \hline
+$P,\ R_c,\ F_1$ & Precision, recall and F1 score of the laundering class \\ \hline
+$D$ & Degradation: $F_1^{\text{before}} - F_1^{\text{attack}}$ \\ \hline
+$R$ & Recovery: $F_1^{\text{retrained}} - F_1^{\text{attack}}$ \\ \hline
+$\mathcal{P}_t$ & Attacker playbook (set of mutation operators) after round $t$ \\ \hline
+$J(A,B)$ & Jaccard similarity $|A\cap B|/|A\cup B|$ of reconstructed and true ring accounts \\ \hline
+$w_+$ & Positive-class weight in the binary cross-entropy loss \\ \hline
+\end{tabular}
+\end{center}

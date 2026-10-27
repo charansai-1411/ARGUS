@@ -1,0 +1,37 @@
+\chapter{INTRODUCTION}
+
+\section{Background}
+Digital payments have made it possible to move money between any two bank accounts in seconds. The same speed is exploited by fraudsters: when a victim is deceived into transferring money, the stolen funds are immediately split and forwarded through a chain of \emph{mule accounts} --- ordinary accounts rented out or recruited by criminals --- that are spread across several different banks, and are finally withdrawn as cash within minutes. Detecting and interrupting this chain is a problem of anti-money laundering (AML), a field of financial crime that sits at the intersection of artificial intelligence, data science and cybersecurity.
+
+The central difficulty is that the laundering pattern is a property of the \emph{network} of transactions, not of any single transaction. Each bank observes only its own hop: money came into an account and money went out. In isolation that is normal behaviour. The laundering ring becomes visible only when the transfers of all banks are joined into one picture, where fan-outs, rapid pass-through and circular flows stand out as a recognisable shape.
+
+\section{Motivation}
+Traditional transaction-monitoring systems in banks are rule-based: they flag transactions that exceed fixed thresholds of amount or frequency. Criminals learn these thresholds and stay beneath them, so rule-based systems simultaneously raise large numbers of false alarms and miss multi-hop chains. Graph Neural Networks (GNNs), which learn from an account together with its neighbours and their neighbours, are a natural fit for this network-shaped problem, and recent work has shown that heterogeneous and temporal GNNs outperform flat models for AML \cite{johannessen2025finding, digennaro2024amatriciana}. Regulators have taken note: the Reserve Bank of India's innovation hub has introduced an AI-based mule-account detector, MuleHunter.AI, for Indian banks \cite{rbih2024mulehunter}.
+
+Detecting a laundering ring \emph{once} is therefore no longer the open question. The open question appears the day after a detector is deployed: launderers watch which accounts get frozen and change their tactics. They split transfers into smaller ones, slow the ring down, imitate normal payment formats, or surround their mules with ordinary-looking transactions. Published detectors are almost always evaluated on a fixed dataset and are rarely tested against an attacker who adapts. ARGUS is designed around this question: how much accuracy does an adaptive, camouflaged launderer take away from a graph detector, and how much does retraining win back?
+
+\section{Problem Statement}
+Money laundered from online fraud moves through mule accounts across several banks. Because each bank sees only its own hop, no institution sees the full laundering ring, and existing graph-based detectors are rarely tested against criminals who adapt after detection. The problem addressed by this project is to build a graph-based AML system that (i) reconstructs the cross-bank laundering ring from transaction data, (ii) recommends action to a human officer through an explainable, verifiable report, and (iii) is systematically stress-tested to measure how much accuracy it loses when criminals adapt and how quickly it recovers.
+
+\section{Objectives}
+\begin{enumerate}
+    \item \textbf{Cross-bank graph representation.} Model transactions as a heterogeneous, temporal graph of accounts, owning entities and banks, so that a ring hidden across banks becomes one visible structure.
+    \item \textbf{Temporal GNN detection.} Detect laundering transfers and full rings with an edge-level GNN whose neighbourhood sampling never looks into the future, and compare it with rule-based and gradient-boosting baselines.
+    \item \textbf{Imbalance and false-positive control.} Handle the extreme rarity of laundering (about 0.1\% of transfers) with appropriate losses, metrics and threshold selection.
+    \item \textbf{Multi-bank digital twin.} Build a controlled multi-bank testbed on real background traffic that injects laundering rings with known ground truth.
+    \item \textbf{Adversarial robustness evaluation.} Mutate the injected rings with an attacker's playbook and quantify degradation $D$ and recovery $R$, including against an adaptive multi-round attacker.
+    \item \textbf{Human-in-the-loop reporting.} Reconstruct each detected ring, draft a Suspicious Transaction Report (STR) with a language-model narrative that is verified against computed facts, and leave every freeze decision to an officer.
+\end{enumerate}
+
+\section{Contributions}
+The work reported here makes the following contributions:
+\begin{itemize}
+    \item A leakage-safe evaluation pipeline on the IBM AML HI-Small dataset \cite{altman2023realistic}: chronological splits, past-only features, a validation-chosen threshold and time-respecting neighbour sampling, enforced by automated tests.
+    \item A heterogeneous edge-level GNN that reaches a test PR-AUC of 0.726 and F1 of 0.729, against 0.296 and 0.367 for LightGBM on the same features, and fully recovers 60.4\% of laundering rings against 4.2\%.
+    \item A multi-bank digital twin with six attack operators and a measurement protocol for degradation $D$ and recovery $R$; the GNN reduces the damage of structuring from 0.439 to 0.038 F1 and of feature mimicry from 0.307 to 0.102, while relation camouflage remains the open problem for both models.
+    \item An investigation agent that reconstructs detected rings (Jaccard similarity 0.90 with ground truth) and a grounding check that rejects any number in the language-model narrative that is not supported by the case facts.
+    \item An end-to-end demonstration (FastAPI, React and Cytoscape.js) that presents alert, network, investigation and attack in five steps, and runs offline.
+\end{itemize}
+
+\section{Organisation of the Report}
+Chapter~2 surveys ten papers across five dimensions of the problem and identifies the research gap. Chapter~3 describes the proposed system: the data and preprocessing, the baselines, the heterogeneous graph and GNN, time-respecting sampling, the digital twin and attacker, the investigation agent and the demonstration, followed by the experimental results. Chapter~4 concludes, and Chapter~5 outlines future work. Selected source code is attached in the appendix.

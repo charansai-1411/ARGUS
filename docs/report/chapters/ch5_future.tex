@@ -1,0 +1,11 @@
+\chapter{FUTURE SCOPE}
+
+\begin{enumerate}
+    \item \textbf{Statistical confidence.} Repeat the digital-twin experiments with several random seeds and report means with confidence intervals for $D$ and $R$; extend the adaptive attacker to all six operators and more rounds.
+    \item \textbf{Camouflage-aware defence.} Relation camouflage is the weakness the evaluation exposed. The next step is camouflage-resistant aggregation in the spirit of CARE-GNN \cite{dou2020enhancing} --- learning which neighbours to trust --- and evaluating whether it raises recovery $R$ under camouflage.
+    \item \textbf{Backbone and scale studies.} Compare GATv2 and GraphSAGE with GINE on the full data, add multigraph-specific enhancements such as reverse message passing and port numbering \cite{egressy2024provably}, and scale to the larger IBM variants (HI-Medium, HI-Large).
+    \item \textbf{Cross-domain validation.} Validate on real labelled data such as the Elliptic Bitcoin graph \cite{weber2019antimoney} and Elliptic2 subgraphs \cite{bellei2024shape}, measuring how well methods transfer from synthetic bank data.
+    \item \textbf{Privacy-preserving cross-bank detection.} In practice banks cannot pool raw transactions. Federated or secure multi-party training of the graph model would let banks detect cross-bank rings without sharing customer data.
+    \item \textbf{Streaming deployment.} Score transfers as they arrive with incremental graph updates and temporal memory, so that a forming ring raises an alert before cash-out.
+    \item \textbf{Richer investigation.} Extend the agent with watch-list checks, typology classification of reconstructed rings and claim-level verification of the narrative, and evaluate STR quality with compliance officers.
+\end{enumerate}
